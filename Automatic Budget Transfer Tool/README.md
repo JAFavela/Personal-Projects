@@ -7,6 +7,5 @@ I developed this program to help my girlfriend, who is an auditor, not waste so 
 - After reading the rules, It computes the required sums and uses the same excel file in order to format the computed values in the correct format.
 - It then creates a new excel file and outputs it to an output folder ready to submit to the state.
 
-## How much did it actually help?:
-A job that once took my girlfriend 30 hours of work to complete only to result in multiple errors which she needed to find and correct before submitting to the state now only took 2 minutes to complete.
-The programs output was also completely error free.
+## Results:
+With the help of this program a job that once took 30 hours to complete now only took 2 minutes. The programs completed work would also be error free while it was common to find errors when done manually. 
