@@ -1,5 +1,5 @@
 # Automatic Budget Transfer Tool
-I developed this program to help my girlfriend, who is an auditor, not waste so much time on a repetative task that i figured a machine should do instead.
+I developed this program to help my girlfriend, who is an auditor, not waste so much time on a repetitive task that i figured a machine should do instead.
 
 ## What it does:
 - Basically, the program takes a pdf of specially formated values and reads all of them into a list.
