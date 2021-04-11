@@ -1,13 +1,14 @@
 # GoldMiner
 ### Author: Jorge A Favela
 This project was started with the goal of reducing the steps required to obtain documents and perform tasks on Goldmine, UTEPS student web portal. For example, obtaining a PDF copy of your current transcript would require you to:
+#### Through browser:
 1. Launch your browser.
 2. Navigate to web page.
 3. Enter login credentials.
 4. Navigate through the various menus and pages to get to the transcript(about 6-7 clicks)
 5. Print to pdf.
 
-#### With Goldminer:
+#### Through Goldminer:
 1. Launch Goldminer.
 2. Click the menu option.
 
