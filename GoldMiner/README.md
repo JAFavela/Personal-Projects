@@ -7,7 +7,7 @@ This project was started with the goal of reducing the steps required to obtain 
 4. Navigate through the various menus and pages to get to the transcript(about 6-7 clicks)
 5. Print to pdf.
 
-# With Goldminer:
+#### With Goldminer:
 1. Launch Goldminer.
 2. Click the menu option.
 
