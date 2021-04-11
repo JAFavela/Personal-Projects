@@ -1,5 +1,5 @@
 # GoldMiner
-###Author: Jorge A Favela
+### Author: Jorge A Favela
 This project was started with the goal of reducing the steps required to obtain documents and perform tasks on Goldmine, UTEPS student web portal. For example, obtaining a PDF copy of your current transcript would require you to:
 1. Launch your browser.
 2. Navigate to web page.
