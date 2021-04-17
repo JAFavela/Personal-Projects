@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Last updated on Fri Apr 16 22:46:04 2021
 @author: Jorge Favela
