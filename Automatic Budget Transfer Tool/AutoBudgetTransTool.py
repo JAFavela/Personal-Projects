@@ -7,20 +7,99 @@ Created on Fri May 22 11:15:06 2020
 
 """
 from openpyxl import load_workbook
-import win32com.client, win32com.client.makepy, os, winerror
-from win32com.client.dynamic import ERRORS_BAD_CONTEXT
-from openpyxl import load_workbook
 from openpyxl.styles import Alignment
+from wx import App,FD_FILE_MUST_EXIST, FD_OPEN, FileDialog, ID_OK
+import sys
+import tkinter as tk
+import tkinter.ttk as ttk
 
+py3 = True
+cellF = {True : 'General', False : '0.00'}
+global rnd
+global oName
+
+class Toplevel1:
+    global top
+    def __init__(self, top=None):
+        '''This class configures and populates the toplevel window.
+           top is the toplevel containing window.'''
+        _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
+        _fgcolor = '#000000'  # X11 color: 'black'
+        _compcolor = '#d9d9d9' # X11 color: 'gray85'
+        _ana1color = '#d9d9d9' # X11 color: 'gray85'
+        _ana2color = '#ececec' # Closest X11 color: 'gray92'
+        self.style = ttk.Style()
+        if sys.platform == "win32":
+            self.style.theme_use('winnative')
+        self.style.configure('.',background=_bgcolor)
+        self.style.configure('.',foreground=_fgcolor)
+        self.style.configure('.',font="TkDefaultFont")
+        self.style.map('.',background=
+            [('selected', _compcolor), ('active',_ana2color)])
+
+        top.geometry("600x166+707+446")
+        top.minsize(148, 1)
+        top.maxsize(1924, 1055)
+        top.resizable(0,  0)
+        top.title("ABTT by Jorge Favela")
+        top.configure(background="#d9d9d9")
+
+        self.outName = ttk.Entry(top)
+        self.outName.place(x=20, y=60, height=36, width=246)
+        self.outName.configure(takefocus="")
+        self.outName.configure(cursor="ibeam")
+
+        self.TLabel1 = ttk.Label(top)
+        self.TLabel1.place(x=20, y=30, height=24, width=185)
+        self.TLabel1.configure(background="#d9d9d9")
+        self.TLabel1.configure(foreground="#000000")
+        self.TLabel1.configure(font="TkDefaultFont")
+        self.TLabel1.configure(relief="flat")
+        self.TLabel1.configure(anchor='w')
+        self.TLabel1.configure(justify='left')
+        self.TLabel1.configure(text='''Enter name for output file:''')
+
+        self.TLabel2 = ttk.Label(top)
+        self.TLabel2.place(x=320, y=30, height=24, width=213)
+        self.TLabel2.configure(background="#d9d9d9")
+        self.TLabel2.configure(foreground="#000000")
+        self.TLabel2.configure(font="TkDefaultFont")
+        self.TLabel2.configure(relief="flat")
+        self.TLabel2.configure(anchor='w')
+        self.TLabel2.configure(justify='left')
+        self.TLabel2.configure(text='''Round to whole number? (Y/N):''')
+
+        self.rund = ttk.Entry(top)
+        self.rund.place(x=320, y=60, height=36, width=256)
+        self.rund.configure(takefocus="")
+        self.rund.configure(cursor="ibeam")
+
+        self.TButton1 = ttk.Button(top)
+        self.TButton1.place(x=20, y=110, height=30, width=558)
+        self.TButton1.configure(takefocus="")
+        self.TButton1.configure(text='''Continue''')
+        self.TButton1.configure(command=setValues)
+
+
+def getFilePath(wildcard, title):
+    app = App(None)
+    style = FD_OPEN | FD_FILE_MUST_EXIST
+    dialog = FileDialog(None, title, wildcard=wildcard, style=style)
+    if dialog.ShowModal() == ID_OK:
+        path = dialog.GetPath()
+    else:
+        path = None
+    dialog.Destroy()
+    return path
 
 def convertData(filename,kc):
     lines=[]
-    dsf = load_workbook(filename=filename) # Opens excel file
+    dsf = load_workbook(filename=filename)
     sheet=dsf.active
     objs=sheet[kc]
-    rules=[i.value for i in objs]  # Reads rules from excel file to a list
+    rules=[i.value for i in objs]
     cnt=0
-    for line in rules: # Iterates through list and reformats rules to a usable list of rules
+    for line in rules:
         cnt+=1
         if line == None:
             break
@@ -55,40 +134,34 @@ def convertData(filename,kc):
                             AN.append(st+en)
                             en=''
                 lines.append([cnt,AN])
-    return lines # Returns ready to use list of rules  
+    return lines
 
-def compare(lines,Data): # Creates list of values calculated from new data and list of rules
+def compare(lines,Data,rnd):
     vals=[0.00 for i in range(len(lines)+1)]
-    for rec in Data:
+    for rec in Data[::-1]:
         for l in lines:
             if rec[0] in l[1]:
                 vals[l[0]]+=rec[1]
                 break
-    return [round(num,0) for num in vals]
+    if rnd:
+        return [round(num,0) for num in vals]
+    return [round(num,2) for num in vals]
 
-def pdf2excel(pdFilename): # Reads data from a PDF and convertsa it to an excel file
-    excel_file = "pdf2excel.xlsx"
-    ERRORS_BAD_CONTEXT.append(winerror.E_NOTIMPL)
-    src = os.path.abspath(pdFilename)
-    win32com.client.makepy.GenerateFromTypeLibSpec('Acrobat')
-    avDoc = win32com.client.DispatchEx('AcroExch.AVDoc')
-    avDoc.Open(src, src)
-    pdDoc = avDoc.GetPDDoc()
-    jObject = pdDoc.GetJSObject()
-    jObject.SaveAs(excel_file, "com.adobe.acrobat.xlsx")
-    avDoc.Close(-1)
-    pdDoc.Close()
+def stripSpace(s):
+    s = s.replace(' ', '')
+    return s.replace('\n', '')
+    
         
-def getNewData(pdFilename): # Gets new data from excel sheet and puts it in a list ready to use
-    pdf2excel(pdFilename)
-    workbook = load_workbook(filename=".\\input\\pdf2excel.xlsx")
+def getNewData(datFile):
+    workbook = load_workbook(filename=datFile)
     sheet = workbook.active
     Data=[]
     for value in sheet.iter_rows(max_col=2,values_only=True):
-        Data.append(value)
+        valNoSpace=(stripSpace(value[0]),value[1])
+        Data.append(valNoSpace)
     return Data
 
-def insert2sheet(values,filename,outName,ac): # Takes newly calculated data and inserts it into formated excel sheet ready to submit to state
+def insert2sheet(values,filename,outName,ac,rnd):
     dsf = load_workbook(filename=filename)
     sheet=dsf.active
     col=ac
@@ -98,22 +171,55 @@ def insert2sheet(values,filename,outName,ac): # Takes newly calculated data and 
             cell=col+str(row)
             sheet[cell].value=float(amt)
             sheet[cell].alignment = Alignment(horizontal="right")
-            sheet[cell].number_format = 'General'
+            sheet[cell].number_format = cellF.get(rnd)
         row+=1
     dsf.save(outName)
-                    
+
+def setValues():
+    global oName
+    global rnd
+    global top
+    global root
+    oName=top.outName.get() + '.xlsx'
+    rnd= top.rund.get()
+    if rnd.lower() == 'y':
+        rnd= True
+    else:
+        rnd=False
+    root.quit()
+    
+ 
 if __name__ == "__main__":
-    print('Please make sure both files are in their required format and in the "INPUT" folder')
-    filename = input('Enter the name of the DFA template with the keys including the ".xlsx" extension:') # QR.xlsx
-    filename ='.\\INPUT\\'+ filename
-    datFile=input('Enter the name of the pdf exported from caselle including the ".pdf" extension:') # data.pdf
-    datFile='.\\INPUT\\'+datFile
-    outName=input('Enter desired name for final DFA file including ".xlsx" extenion:')
-    outName='.\\OUTPUT\\'+outName
-    values=compare(convertData(filename,'D'),getNewData(datFile))
-    insert2sheet(values,filename,outName,'D')
-    print('\nSuccess! Your file has been saved in the "OUTPUT" folder as"',outName,'"\nHope it helped!\nEnter to exit program')
-    bye=input('')
-    if bye:
-        print()
-                   
+    global oName
+    global rnd
+    global top
+    global root
+    
+    choice= lambda r: 'Yes' if r else 'No'
+    print('Select the DFA template that includes the keys') # QR.xlsx
+    filename = getFilePath('*.xlsx','Select the DFA template that includes the keys' )
+    print('Selected File: ', filename)
+
+    print('Select the file that contains the dollar amounts to be processed') # QR.xlsx
+    datFile = getFilePath('*.xlsx', 'Select the file that contains the dollar amounts to be processed: ')
+    print('Selected File: ', datFile)
+    
+    root = tk.Tk()
+    top = Toplevel1(root)
+    root.mainloop()
+    on = oName
+    r=rnd
+    root.destroy()
+    root=None
+
+    print('Enter name to give the newly generated file')
+    print('Output File Name: ', on)
+    
+    print('ERound final values to whole number? Y/N')
+    print('Round: ', choice(r))
+    
+    values=compare(convertData(filename,'D'),getNewData(datFile),r)
+    insert2sheet(values,filename,on,'D',r)
+    
+    print("\nSuccess! Your file has been saved as {} \nHope it helped!".format(on))
+    
